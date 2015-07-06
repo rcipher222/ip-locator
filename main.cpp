@@ -10,68 +10,64 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
-
+#include <iostream>
 using namespace std;
 
 /*
  * 
  */
 
-char Is_Valid_IP (const char* tIP) { 
+char validIP (const char* tIP) { 
     struct sockaddr_in bIP;
-    int result = inet_pton(AF_INET, tIP, &(bIP.sin_addr)); 
-    return result==1;
+    int ans = inet_pton(AF_INET, tIP, &(bIP.sin_addr)); 
+    return ans==1;
+}
+void Error(int ans){
+if (ans==-1 || ans==127 ) {
+		cout<<"Location could not be resolved\n";
+		exit(EXIT_FAILURE);
+	}
 }
 
 int main(int argc, char *argv[]) {
 	if (argc==1) {
 		//u donnt input ur ip so i am looking for computers ip..
-        printf ("IP address is:\n");
-	int result=system("curl ipinfo.io/ip"); 
-	if (result==-1 || result==127 ) {
-		printf("Error: IP could not be resolved\n");
+         ("IP address is:\n");
+	int ans=system("curl ipinfo.io/ip"); 
+	if (ans==-1 || ans==127 ) {
+		cout<<"IP could not be resolved\n";
 		exit(EXIT_FAILURE);
 	}
-	printf ("city:\n");
-	result=system("curl ipinfo.io/city");
-	if (result==-1 || result==127 ) {
-		printf("Location could not be resolved\n");
-		exit(EXIT_FAILURE);
-	}
+	cout<<"city:\n";
+	ans=system("curl ipinfo.io/city");
+	Error(ans);
         
 	} 
         else {
 		//looking for the inputed ip
-		printf ("Locating %s...\n", argv [1]);
+		cout<<"Locating %s...\n"<< argv[1];
                 
-                if ( Is_Valid_IP(argv[1])!=1 ) {
+                if ( validIP(argv[1])!=1 ) {
 		printf("Not a valid IP address\n");
 	        }
                 else 
                 {
 		char url[50]={0};
-		strcpy(url,"curl ipinfo.io/");
+                strcpy(url,"curl ipinfo.io/");
 		strcat(url, argv[1]);
                 
 		char url2[50]={0};
 		strcpy(url2,url);
                 
 		strcat(url,"/city");
-		int result=system(url);
+		int ans=system(url);
                 
-		if (result==-1 || result==127 ) 
-                {
-			printf("Location could not be resolved\n");
-			exit(EXIT_FAILURE);
-		}
+		Error(ans);
                 
 		strcat(url2,"/country");
-		result=system(url2);
+		ans=system(url2);
                 
-		if (result==-1 || result==127 ) {
-			printf("Location could not be resolved\n");
-			exit(EXIT_FAILURE);
-		}
+		Error(ans);
 	}
 	}
 	return 0;
